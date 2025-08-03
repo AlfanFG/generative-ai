@@ -1,19 +1,15 @@
 {
-  "dependencies": {
-    "@google/genai": "^1.12.0",
-    "dotenv": "^17.2.1",
-    "express": "^5.1.0",
-    "multer": "^2.0.2"
-  },
-  "name": "wave-3",
+  "name": "wave-3-monorepo",
   "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
+  "private": true,
+  "workspaces": [
+    "frontend",
+    "backend"
+  ],
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "dev": "concurrently \"npm run dev -w backend\" \"npm run dev -w frontend\""
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "type": "module"
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
 }
