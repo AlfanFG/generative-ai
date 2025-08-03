@@ -1,9 +1,7 @@
 import "dotenv/config";
 import express from "express";
 import multer from "multer";
-import path from "path";
-import cors from "cors";
-import { fileURLToPath } from "url";
+import fs from "fs/promises";
 import { GoogleGenAI } from "@google/genai";
 
 function extractText(data) {
@@ -21,18 +19,12 @@ function extractText(data) {
 }
 
 // declare variable untuk express
-
 const app = express();
 // declare variable untuk multer
 const upload = multer();
 
-// buat 2 variable ajaib (magic variable)
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
 // declare variable untuk Google Gemini AI model
 const DEFAULT_GEMINI_MODEL = "gemini-2.5-flash";
-
 const DEFAULT_PORT = 3000;
 // instantiation --> memanggil class menjadi sebuah instance
 
@@ -42,11 +34,7 @@ const ai = new GoogleGenAI({
   apiKey: process.env.GOOGLE_AI_STUDIO_API_KEY,
 });
 
-// memanggil middleware untuk express
-app.use(cors());
 app.use(express.json());
-//tambahkan middleware untuk serve file static untuk frontend
-app.use(express.static(path.join(__dirname, "public")));
 
 app.post("/generate-text", async (req, res) => {
   try {
@@ -65,44 +53,6 @@ app.post("/generate-text", async (req, res) => {
     res.status(500).json({
       message: err.message,
     });
-  }
-});
-
-app.post("/chat", async (req, res) => {
-  try {
-    if (!req.body) {
-      // perlu ada payload yang dikirim
-      return res.json(400, "Invalid request body!");
-    }
-
-    const { messages } = req.body;
-    // cek messagesnya
-    if (!messages) {
-      // kirim jika tidak ada message
-      return res.json(400, "Pesannya masih kurang!");
-    }
-
-    const payload = messages?.map((msg) => {
-      return {
-        role: msg.role,
-        parts: [
-          {
-            text: msg.content,
-          },
-        ],
-      };
-    });
-
-    const aiResponse = await ai.models.generateContent({
-      model: DEFAULT_GEMINI_MODEL,
-      contents: payload,
-    });
-
-    res.json({
-      reply: extractText(aiResponse),
-    });
-  } catch (e) {
-    res.status(500).json({ message: e.message });
   }
 });
 
